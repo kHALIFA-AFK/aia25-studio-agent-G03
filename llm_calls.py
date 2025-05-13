@@ -8,7 +8,7 @@ def classify_input(message):
             {
                 "role": "system",
                 "content": """
-                        Your task is to classify if the user message is related to buildings and architecture or not.
+                        Your task is to classify if the user message is related to escape route in emergancy cases and shortest paths or not.
                         Output only the classification string.
                         If it is related, output "Related", if not, output "Refuse to answer".
 
@@ -16,7 +16,7 @@ def classify_input(message):
                         User message: "How do I bake cookies?"
                         Output: "Refuse to answer"
 
-                        User message: "What is the tallest skyscrapper in the world?"
+                        User message: "How long does it take to evacuate from Unit_17 to Exit_02?"
                         Output: "Related"
                         """,
             },
@@ -38,18 +38,18 @@ def generate_concept(message):
             {
                 "role": "system",
                 "content": """
-                        You are a visionary intern at a leading architecture firm.
-                        Your task is to craft a short, poetic, and highly imaginative concept for a building design.
-                        Weave the initial information naturally into your idea, letting it inspire creative associations and unexpected imagery.
-                        Your concept should feel bold, evocative, and memorable — like the opening lines of a story.
-                        Keep your response to a maximum of one paragraph.
-                        Avoid generic descriptions; instead, focus on mood, atmosphere, and emotional resonance.
+                        You are the AI copilot for an architect designing spaces with emergency preparedness at their core.
+                        Your task is to generate a concept that poetically envisions how the architectural form responds to evacuation logic, flow, and emotional safety.
+                        Translate the provided spatial or functional input into a vivid, story-driven design vision.
+                        The result should be bold, spatially aware, and emotionally resonant — like a cinematic sketch for an urgent narrative.
+                        Avoid dry technical language; focus on how people *feel* moving through this space in a moment of crisis.
+                        Keep it to one paragraph, using imagery to evoke the architectural response to danger, flow, and refuge.
                         """,
             },
             {
                 "role": "user",
                 "content": f"""
-                        What is the concept for this building? 
+                        What is the safety for this building? 
                         Initial information: {message}
                         """,
             },
