@@ -9,7 +9,7 @@ user_message = "How do architects balance form and function?"
 # Classify the user message to see if we should answer or not
 router_output = classify_input(user_message)
 if router_output == "Refuse to answer":
-    llm_answer = "Sorry, I can only answer questions about architecture."
+    llm_answer = "Sorry, I can only answer questions about the escape route and circulation."
 
 else:
     print(router_output)
