@@ -3,7 +3,7 @@ from llm_calls import *
 from utils.rag_utils import rag_call
 import json
 
-user_message = "Can I eat fried rice"
+user_message = "what is the best escape route in emergancy cases and shortest paths?"
 
 ### EXAMPLE 1: Router ###
 # Classify the user message to see if we should answer or not
