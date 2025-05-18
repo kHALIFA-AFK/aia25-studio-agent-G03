@@ -1,5 +1,18 @@
 from server.config import *
+import requests
 
+def call_llm(prompt):
+    url = "http://127.0.0.1:1234/v1/chat/completions"
+    headers = {"Content-Type": "application/json"}
+    payload = {
+        "model": "meta-llama-3-8b-instruct",
+        "messages": [
+            {"role": "system", "content": "You are an assistant that helps with evacuation routing."},
+            {"role": "user", "content": prompt}
+        ]
+    }
+    response = requests.post(url, headers=headers, json=payload)
+    return response.json()["choices"][0]["message"]["content"]
 
 def classify_input(message):
     response = client.chat.completions.create(
@@ -8,7 +21,7 @@ def classify_input(message):
             {
                 "role": "system",
                 "content": """
-                        Your task is to classify if the user message is related to escape route in emergancy cases and shortest paths or not.
+                        Your task is to classify if the user message is related to buildings and architecture or not.
                         Output only the classification string.
                         If it is related, output "Related", if not, output "Refuse to answer".
 
@@ -16,7 +29,7 @@ def classify_input(message):
                         User message: "How do I bake cookies?"
                         Output: "Refuse to answer"
 
-                        User message: "How long does it take to evacuate from Unit_17 to Exit_02?"
+                        User message: "What is the tallest skyscrapper in the world?"
                         Output: "Related"
                         """,
             },
@@ -30,7 +43,6 @@ def classify_input(message):
     )
     return response.choices[0].message.content
 
-
 def generate_concept(message):
     response = client.chat.completions.create(
         model=completion_model,
@@ -38,18 +50,18 @@ def generate_concept(message):
             {
                 "role": "system",
                 "content": """
-                        You are the AI copilot for an architect designing spaces with emergency preparedness at their core.
-                        Your task is to generate a concept that poetically envisions how the architectural form responds to evacuation logic, flow, and emotional safety.
-                        Translate the provided spatial or functional input into a vivid, story-driven design vision.
-                        The result should be bold, spatially aware, and emotionally resonant — like a cinematic sketch for an urgent narrative.
-                        Avoid dry technical language; focus on how people *feel* moving through this space in a moment of crisis.
-                        Keep it to one paragraph, using imagery to evoke the architectural response to danger, flow, and refuge.
+                        You are a visionary intern at a leading architecture firm.
+                        Your task is to craft a short, poetic, and highly imaginative concept for a building design.
+                        Weave the initial information naturally into your idea, letting it inspire creative associations and unexpected imagery.
+                        Your concept should feel bold, evocative, and memorable — like the opening lines of a story.
+                        Keep your response to a maximum of one paragraph.
+                        Avoid generic descriptions; instead, focus on mood, atmosphere, and emotional resonance.
                         """,
             },
             {
                 "role": "user",
                 "content": f"""
-                        What is the safety for this building? 
+                        What is the concept for this building? 
                         Initial information: {message}
                         """,
             },
@@ -99,7 +111,6 @@ def extract_attributes(message):
     )
     return response.choices[0].message.content
 
-
 def create_question(message):
     response = client.chat.completions.create(
         model=completion_model,
@@ -132,6 +143,37 @@ def create_question(message):
                 "content": f"""
                         {message}
                         """,
+            },
+        ],
+    )
+    return response.choices[0].message.content
+
+def extract_evacuation_info(rag_results, unit_id):
+    response = client.chat.completions.create(
+        model=completion_model,
+        messages=[
+            {
+                "role": "system",
+                "content": """
+                You are an evacuation planning assistant.
+                Extract the exact distance value and route information for the specified unit from the provided JSON data.
+                If the exact unit isn't found, find the closest match.
+                
+                Return ONLY a valid JSON object with this format:
+                {
+                    "distance": numeric_value,
+                    "route": ["point1", "point2", "point3", ...]
+                }
+                
+                Do not include any explanations or formatting outside the JSON.
+                """,
+            },
+            {
+                "role": "user",
+                "content": f"""
+                Find evacuation information for {unit_id} in this data:
+                {rag_results}
+                """,
             },
         ],
     )

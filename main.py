@@ -2,38 +2,51 @@ from server.config import *
 from llm_calls import *
 from utils.rag_utils import rag_call
 import json
+import re
+import os
 
-user_message = "can i fly?"
+# Get absolute path to file
+project_dir = os.path.dirname(os.path.abspath(__file__))
+json_path = os.path.join(project_dir, "knowledge", "embedded_sample01.json")
 
-### EXAMPLE 1: Router ###
-# Classify the user message to see if we should answer or not
-router_output = classify_input(user_message)
-if router_output == "Refuse to answer":
-    llm_answer = "Sorry, I can only answer questions about the escape route and circulation."
+# Define user messages
+user_message = "How long does it take to reach the exit from Unit_33?"
+user_message_01 = "What is the escape route from Unit_14?"
+user_message_02 = "Can you tell me the evacuation distance from Unit_22 to the nearest exit?"
 
-else:
-    print(router_output)
-    ### EXAMPLE 2: Simple call ###
-    # simple call to LLM, try different sys prompt flavours
-    brainstorm = generate_concept(user_message)
-    print(brainstorm)
+# Function to process a single evacuation query
+def process_evacuation_query(message):
+    print(f"\n--- Processing Query: '{message}' ---")
+    
+    # Extract unit ID from user message
+    unit_match = re.search(r'Unit_\d+', message)
+    unit_id = unit_match.group(0) if unit_match else "Unknown Unit"
+    
+    router_output = classify_input(message)
+    if router_output == "Refuse to answer":
+        print("Sorry, I can only answer questions about architecture.")
+        return
+    
+    print(f"Processing evacuation query for {unit_id}")
+    
+    # Use RAG to get relevant information
+    rag_result = rag_call(f"What is the evacuation route and distance for {unit_id}?", 
+                        embeddings=json_path,
+                        n_results=5)
+    
+    # Extract structured information using LLM
+    structured_info = extract_evacuation_info(rag_result, unit_id)
+    
+    try:
+        info = json.loads(structured_info)
+        print(f"\nEvacuation Information for {unit_id}:")
+        print(f"• Distance: {info['distance']}")
+        print(f"• Route: {', '.join(info['route'])}")
+    except json.JSONDecodeError:
+        print("Error parsing evacuation information.")
 
-    ### EXAMPLE 4: Structured Output ###
-    # extract the architecture attributes from the user
-    # parse a structured output with regex
-    attributes = extract_attributes(brainstorm)
-    print(attributes)
-
-    attributes = attributes.strip()
-    attributes = json.loads(attributes)
-    shape, theme, materials = (attributes[k] for k in ("shape", "theme", "materials"))
-
-    ### EXAMPLE 3: Chaining ###
-    circulation_question = create_question(theme)
-    print(circulation_question)
-    # call llm with the output of a previous call
-
-    ### EXAMPLE 5: RAG ####
-    # Get a response based on the knowledge found
-    rag_result= rag_call(circulation_question, embeddings = "knowledge/brutalism_embeddings.json", n_results = 11)
-    print(rag_result)
+# Process all three queries
+print("=== Processing Multiple Evacuation Queries ===")
+process_evacuation_query(user_message)
+process_evacuation_query(user_message_01)
+process_evacuation_query(user_message_02)
