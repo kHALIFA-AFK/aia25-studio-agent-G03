@@ -10,9 +10,12 @@ project_dir = os.path.dirname(os.path.abspath(__file__))
 json_path = os.path.join(project_dir, "knowledge", "embedded_sample01.json")
 
 # Define user messages
-user_message = "What is the escape route from Unit_14?"
+user_message = "How long does it take to reach the exit from Unit_33?"
 user_message_01 = "What is the escape route from Unit_14?"
-user_message_02 = "What is the escape route from Unit_14?"
+user_message_02 = "Can you tell me the evacuation distance from Unit_22 to the nearest exit?"
+user_message_03 = "Which units have a distance shorter than 15 meters to an exit?"
+user_message_04 = "Which corridor is most used?"
+user_message_05 = "Show all units that use Exit_01."
 
 # Function to process a single evacuation query
 def process_evacuation_query(message):
@@ -25,6 +28,12 @@ def process_evacuation_query(message):
     router_output = classify_input(message)
     if router_output == "Refuse to answer":
         print("Sorry, I can only answer questions about architecture.")
+        return
+    
+        # Handle general queries (no specific unit)
+    if unit_id == "Unknown Unit":
+        rag_result = rag_call(message, embeddings=json_path, n_results=5)
+        print(f"\nGeneral Query Result:\n{rag_result}")
         return
     
     print(f"Processing evacuation query for {unit_id}")
@@ -50,3 +59,6 @@ print("=== Processing Multiple Evacuation Queries ===")
 process_evacuation_query(user_message)
 process_evacuation_query(user_message_01)
 process_evacuation_query(user_message_02)
+process_evacuation_query(user_message_03)
+process_evacuation_query(user_message_04)
+process_evacuation_query(user_message_05)
