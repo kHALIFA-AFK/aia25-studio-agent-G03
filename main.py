@@ -10,9 +10,9 @@ project_dir = os.path.dirname(os.path.abspath(__file__))
 json_path = os.path.join(project_dir, "knowledge", "embedded_sample01.json")
 
 # Define user messages
-user_message = "can i fly?"
+user_message = "What is the escape route from Unit_14?"
 user_message_01 = "What is the escape route from Unit_14?"
-user_message_02 = "Can you tell me the evacuation distance from Unit_22 to the nearest exit?"
+user_message_02 = "What is the escape route from Unit_14?"
 
 # Function to process a single evacuation query
 def process_evacuation_query(message):
